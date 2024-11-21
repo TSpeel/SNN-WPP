@@ -1,6 +1,8 @@
 import numpy as np
 from core.networks import Network
 from core.simulators import Simulator
+import argparse
+import ast
 
 class Constructor():
     """Constructor
@@ -133,7 +135,6 @@ def construct_MST(spikes, delays, weight_matrix):
 def execute_simulator(weight_matrix):
     constructor = Constructor(weight_matrix)
     network = constructor.construct()
-    print(network)
 
     weights = constructor.weight_matrix_transformed
 
@@ -150,21 +151,32 @@ def execute_simulator(weight_matrix):
 
     return construct_MST(spikes, weights, weight_matrix)
 
-weight_matrix = np.array([
-    [0, 1, 5, 0, 9], # A
-    [0, 0, 2, 7, 0], # B
-    [0, 0, 0, 3, 1], # C
-    [0, 0, 0, 0, 14], # D
-    [0, 0, 0, 0, 0] # E
-])
 
+parser = argparse.ArgumentParser()
+parser.add_argument('-i', type=str)
+args = parser.parse_args()
+if args.i is not None:
+    weight_matrix = np.array(ast.literal_eval(args.i))
+else:
+    weight_matrix = np.array([
+        [0, 1, 5, 0, 9], # A
+        [0, 0, 2, 7, 0], # B
+        [0, 0, 0, 3, 1], # C
+        [0, 0, 0, 0, 14], # D
+        [0, 0, 0, 0, 0] # E
+    ])
+#Usage eg python3 constructNetwork.py -i [[0,1,5,0,9],[0,0,2,7,0],[0,0,0,3,1],[0,0,0,0,14],[0,0,0,0,0]]
+# or just python3 constructNetwork.py
+
+
+"""
 weight_matrix_ones = np.array([
     [0, 1, 1, 0, 1], # A
     [0, 0, 1, 1, 1], # B
     [0, 0, 0, 1, 1], # C
     [0, 0, 0, 0, 1], # D
     [0, 0, 0, 0, 0] # E
-])
+])"""
 
 mst_matrix = execute_simulator(weight_matrix)
 
