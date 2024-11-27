@@ -32,11 +32,14 @@ class Constructor():
         self.network.createSynapse(start_train, start_node, w=1, d=1)
 
         # Create add node for adding new nodes to the MST and suppressing the rest of the graph.
-        add_node = self.network.createLIF(m=1, V_init=self.nr_edges, V_reset=self.nr_edges, thr=self.nr_edges+1, read_out=False, ID=3)
+        add_node = self.network.createLIF(m=1, V_init=self.nr_edges, V_reset=self.nr_edges, thr=self.nr_edges+1, read_out=True, ID=3)
+        self.target_nodes.append(add_node)
         self.network.createSynapse(add_node, add_node, w=-self.nr_edges, d=1) # Inhibit further spikes to the add node for 3 time-steps while the add node inhibits all the graph nodes
         self.network.createSynapse(add_node, add_node, w=-self.nr_edges, d=2)
         self.network.createSynapse(add_node, add_node, w=-self.nr_edges, d=3)
         self.network.createSynapse(add_node, add_node, w=self.nr_edges, d=4)
+        #self.network.createSynapse(start_node, add_node, w=1, d=8)
+        #maybe nog iets nodig om +1 te doen per iteratie
 
         #add_node = self.network.createLIF(m=1, V_init=0, V_reset=0, V_min=0, thr=self.nr_nodes, read_out=False, ID=3)
         #self.network.createSynapse(start_node, add_node, w=-self.nr_nodes, d=1)
@@ -107,6 +110,21 @@ class Constructor():
                     #self.network.createSynapse(self.graph_nodes[j], add_node, w=-1, d=1)
                     self.weight_matrix_transformed[i,j] = weight
 
+
+                    #prob op de verkeerde plek, want moet alleen -1 doen als de edge ook echt zou spiken, aka als target niet deel is van mst
+                    #ties node v2
+                    ties_node = self.network.createLIF(m=0, V_init=0, V_reset=0, thr=1, read_out=False, ID=counter+23)
+                    self.network.createSynapse(self.graph_nodes[i], ties_node, w=1, d=1)
+                    self.network.createSynapse(self.graph_nodes[j], ties_node, w=1, d=1)
+
+                    #ties and node
+                    ties_and_node = self.network.createLIF(m=0, V_init=0, V_reset=0, thr=2, read_out=False, ID=counter+24)
+                    self.network.createSynapse(ties_node, ties_and_node, w=1, d=1)
+                    self.network.createSynapse(start_node, ties_and_node, w=1, d=6)
+                    self.network.createSynapse(ties_and_node, add_node, w=-1, d=1)
+                    
+
+
                     # Increase counter
                     counter+=1
 
@@ -116,7 +134,7 @@ class Constructor():
 
         # Create reset node for resetting the algorithm and starting the next cycle.
         # Add delay of maximum weight to make sure all pulses have propagated
-        self.network.createSynapse(add_node, start_node, w=1, d=self.max_weight+3)
+        self.network.createSynapse(add_node, start_node, w=1, d=self.max_weight+20)
 
         return self.network
 
@@ -124,8 +142,12 @@ class Constructor():
 def construct_MST(spikes, delays, weight_matrix):
     cycle_starts = np.argwhere(spikes[:, 0] == True).flatten()
     print(cycle_starts)
-    #print([np.argwhere(spikes[:, node]==True).flatten() for node in range(2, spikes.shape[1])])
-    spikes_at = [np.argwhere(spikes[:, node]==True).flatten()[0] for node in range(2, spikes.shape[1])]
+    print([np.argwhere(spikes[:, node]==True).flatten() for node in range(3, spikes.shape[1])])
+    #spikes_at = [np.argwhere(spikes[:, node]==True).flatten()[0] for node in range(3, spikes.shape[1])]
+    spikes_at = [
+    np.flatnonzero(spikes[:, node])[0] if spikes[:, node].any() else 99999
+    for node in range(3, spikes.shape[1])
+]
 
     mst_matrix = np.zeros(weight_matrix.shape)
     print(delays)
@@ -135,7 +157,7 @@ def construct_MST(spikes, delays, weight_matrix):
         time_needed = spike_time - start_cycle - 8
         print(spike_time,start_cycle,time_needed)
         result = np.argwhere(delays==time_needed).flatten()
-        mst_matrix[result[0], result[1]] = weight_matrix[result[0], result[1]]
+        #mst_matrix[result[0], result[1]] = weight_matrix[result[0], result[1]]
 
     return mst_matrix
 
@@ -155,6 +177,7 @@ def execute_simulator(weight_matrix):
     # Obtain all measurements
     spikes = sim.raster.get_measurements()
     voltages = sim.multimeter.get_measurements()
+    print(voltages[:,1])
 
     return construct_MST(spikes, weights, weight_matrix)
 
