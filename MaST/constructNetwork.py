@@ -181,4 +181,4 @@ weight_matrix_ones = np.array([
 mst_matrix = execute_simulator(weight_matrix)
 
 print(f"Graph:\n{weight_matrix}\n")
-print(f"MiST:\n{mst_matrix}")
+print(f"MaST:\n{mst_matrix}")
