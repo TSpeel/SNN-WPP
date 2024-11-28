@@ -7,7 +7,7 @@ class MaSTTest1(unittest.TestCase):
     def test_output_with_input_array(self):
         cmd = [
             sys.executable,
-            os.path.join(os.path.dirname(__file__), 'constructNetwork.py'),
+            os.path.join(os.path.dirname(__file__), 'createMaST.py'),
             '-i',
             '[[0,1,5,0,9],[0,0,2,7,0],[0,0,0,3,1],[0,0,0,0,14],[0,0,0,0,0]]'
         ]
@@ -40,7 +40,7 @@ class MaSTTest2(unittest.TestCase):
     def test_output_with_input_array(self):
         cmd = [
             sys.executable,
-            os.path.join(os.path.dirname(__file__), 'constructNetwork.py'),
+            os.path.join(os.path.dirname(__file__), 'createMaST.py'),
             '-i',
             '[[0,1,5,0,9],[0,0,2,7,0],[0,0,0,3,1],[0,0,0,0,0],[0,0,0,0,0]]'
         ]
@@ -73,7 +73,7 @@ class MaSTTest3(unittest.TestCase):
     def test_output_with_input_array(self):
         cmd = [
             sys.executable,
-            os.path.join(os.path.dirname(__file__), 'constructNetwork.py'),
+            os.path.join(os.path.dirname(__file__), 'createMaST.py'),
             '-i',
             '[[0,0,5,0,9],[0,0,0,7,0],[0,0,0,3,0],[0,0,0,0,0],[0,0,0,0,0]]'
         ]
@@ -107,7 +107,7 @@ class MaSTTest4(unittest.TestCase):
     def test_output_with_input_array(self):
         cmd = [
             sys.executable,
-            os.path.join(os.path.dirname(__file__), 'constructNetwork.py'),
+            os.path.join(os.path.dirname(__file__), 'createMaST.py'),
             '-i',
             '[[0,2,5],[0,0,1],[0,0,0]]'
         ]
