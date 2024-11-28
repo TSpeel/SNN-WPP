@@ -21,7 +21,7 @@ class Constructor():
         self.receive_graph_nodes = []
         self.max_weight = 0
 
-    def construct(self,testmax):
+    def construct(self,max_delay):
         self.network = Network()
 
         # Create start node for starting each cycle.
@@ -37,9 +37,9 @@ class Constructor():
         add_node = self.network.createLIF(m=1, V_init=self.nr_edges, V_reset=self.nr_edges, thr=self.nr_edges+1, read_out=True, ID=3)
         self.target_nodes.append(add_node)
         #Release your inhibition
-        for i in range(1,testmax):
+        for i in range(1,max_delay):
             self.network.createSynapse(add_node, add_node, w=-self.nr_edges, d=i)
-        self.network.createSynapse(add_node, add_node, w=self.nr_edges, d=testmax+4)
+        self.network.createSynapse(add_node, add_node, w=self.nr_edges, d=max_delay+4)
 
         ties_node = self.network.createLIF(m=1, V_init=self.nr_edges, V_reset=0, thr=self.nr_edges+1, read_out=False, ID=4)
         self.network.createSynapse(ties_node, add_node, w=1, d=1)
@@ -83,7 +83,7 @@ class Constructor():
             self.network.createSynapse(receive_graph_node, part_of_mst_node, w=1, d=1)
             self.network.createSynapse(part_of_mst_node, v_notpart_node, w=-1, d=1)
             self.network.createSynapse(receive_graph_node, v_notpart_node, w=1, d=2)
-            self.network.createSynapse(v_notpart_node, add_node, w=1, d=testmax+1)
+            self.network.createSynapse(v_notpart_node, add_node, w=1, d=max_delay+1)
             self.network.createSynapse(v_notpart_node, part_of_mst_node, w=-1, d=1)
 
 
@@ -95,7 +95,7 @@ class Constructor():
             and_gate_v_notpart_node = self.network.createLIF(m=0, V_init=0, V_reset=0, thr=2, read_out=False, ID=id_counter+3)
             self.target_nodes.append(and_gate_v_notpart_node)
             self.network.createSynapse(add_node, and_gate_v_notpart_node, w=1, d=1)
-            self.network.createSynapse(receive_graph_node, and_gate_v_notpart_node, w=1, d=testmax+4)
+            self.network.createSynapse(receive_graph_node, and_gate_v_notpart_node, w=1, d=max_delay+4)
             self.network.createSynapse(and_gate_v_notpart_node, part_of_mst_node, w=self.nr_nodes + 1, d=1)
 
             id_counter += 5
@@ -129,14 +129,14 @@ class Constructor():
 
         # Create reset node for resetting the algorithm and starting the next cycle.
         # Add delay of maximum weight to make sure all pulses have propagated
-        self.network.createSynapse(add_node, start_node, w=1, d=testmax+2)
+        self.network.createSynapse(add_node, start_node, w=1, d=max_delay)
         self.network.createSynapse(add_node, ties_node, w=-self.nr_edges, d=1)
         self.network.createSynapse(add_node, ties_node, w=self.nr_edges, d=2)
 
         return self.network
 
 
-def construct_MST(spikes, delays, weight_matrix,testmax):
+def construct_MST(spikes, delays, weight_matrix,max_delay):
     cycle_starts = np.argwhere(spikes[:, 0] == True).flatten()
     #print(cycle_starts)
     #print([np.argwhere(spikes[:, node]==True).flatten() for node in range(3, spikes.shape[1])])
@@ -151,16 +151,16 @@ def construct_MST(spikes, delays, weight_matrix,testmax):
     for i, spike_time in enumerate(sorted(spikes_at)):
         start_cycle = cycle_starts[i]
         
-        time_needed = spike_time - start_cycle - 8 - testmax
+        time_needed = spike_time - start_cycle - 8 - max_delay
         #print(spike_time,start_cycle,time_needed)
         result = np.argwhere(delays==time_needed).flatten()
         mst_matrix[result[0], result[1]] = weight_matrix[result[0], result[1]]
 
     return mst_matrix
 
-def execute_simulator(weight_matrix,testmax):
+def execute_simulator(weight_matrix,max_delay):
     constructor = Constructor(weight_matrix)
-    network = constructor.construct(testmax)
+    network = constructor.construct(max_delay)
 
     weights = constructor.weight_matrix_transformed
 
@@ -170,13 +170,13 @@ def execute_simulator(weight_matrix,testmax):
     sim.raster.addTarget(constructor.target_nodes)
     sim.multimeter.addTarget(constructor.target_nodes)
 
-    sim.run(steps=(constructor.nr_nodes-1) * (constructor.max_weight*2 + 8) + 1 + 2*constructor.nr_nodes*testmax, plotting=False)
+    sim.run(steps=(constructor.nr_nodes-1) * (constructor.max_weight*2 + 8) + 1 + 2*constructor.nr_nodes*max_delay, plotting=False)
     # Obtain all measurements
     spikes = sim.raster.get_measurements()
     voltages = sim.multimeter.get_measurements()
     #print(voltages[:,1])
 
-    return construct_MST(spikes, weights, weight_matrix,testmax)
+    return construct_MST(spikes, weights, weight_matrix,max_delay)
 
 
 parser = argparse.ArgumentParser()
@@ -196,7 +196,7 @@ else:
 # or just python3 constructNetwork.py
 print(f"Graph:\n{weight_matrix}\n")
 weight_matrix *= 2
-testmax = np.max(weight_matrix) * 3
+max_delay = np.max(weight_matrix) * 2
 
 """
 weight_matrix_ones = np.array([
@@ -207,7 +207,7 @@ weight_matrix_ones = np.array([
     [0, 0, 0, 0, 0] # E
 ])"""
 
-mst_matrix = execute_simulator(weight_matrix,testmax)
+mst_matrix = execute_simulator(weight_matrix,max_delay)
 
 
 print(f"MaST:\n{mst_matrix/2}")
