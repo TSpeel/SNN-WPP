@@ -87,7 +87,7 @@ class Constructor():
             self.network.createSynapse(v_notpart_node, add_node, w=1, d=max_delay+1)
             self.network.createSynapse(v_notpart_node, part_of_mst_node, w=-1, d=1)
 
-
+            # Counting number of edges from MST to non-MST nodes
             self.network.createSynapse(v_notpart_node, add_node, w=-1, d=1)
             self.network.createSynapse(v_notpart_node, ties_node, w=1, d=1)
 
@@ -116,6 +116,7 @@ class Constructor():
                     weight_count = np.count_nonzero(weight_history == w)
                     weight = int(max_duplicate_weights * w + weight_count)
                     weight_history.append(w)
+                    # Synapse goes to receive-only neuron to prevent further spikes from non-MST to non-MST nodes
                     self.network.createSynapse(self.graph_nodes[i], self.receive_graph_nodes[j], w=1, d=weight)
                     self.network.createSynapse(self.graph_nodes[j], self.receive_graph_nodes[i], w=1, d=weight)
                     self.weight_matrix_transformed[i,j] = weight
@@ -129,7 +130,6 @@ class Constructor():
                         self.max_weight = weight
 
         # Create reset node for resetting the algorithm and starting the next cycle.
-        # Add delay of maximum weight to make sure all pulses have propagated
         self.network.createSynapse(add_node, start_node, w=1, d=3)
         self.network.createSynapse(add_node, ties_node, w=-self.nr_edges, d=1)
         self.network.createSynapse(add_node, ties_node, w=self.nr_edges, d=2)
