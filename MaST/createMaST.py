@@ -142,10 +142,7 @@ def construct_MST(spikes, delays, weight_matrix,max_delay):
     #print(cycle_starts)
     #print([np.argwhere(spikes[:, node]==True).flatten() for node in range(3, spikes.shape[1])])
     #spikes_at = [np.argwhere(spikes[:, node]==True).flatten()[0] for node in range(3, spikes.shape[1])]
-    spikes_at = [
-    np.flatnonzero(spikes[:, node])[0] if spikes[:, node].any() else 99999
-    for node in range(3, spikes.shape[1])
-]
+    spikes_at = [np.flatnonzero(spikes[:, node])[0] if spikes[:, node].any() else 99999 for node in range(3, spikes.shape[1])]
 
     mst_matrix = np.zeros(weight_matrix.shape)
     #print(delays)
