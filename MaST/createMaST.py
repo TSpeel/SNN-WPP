@@ -204,16 +204,7 @@ weight_matrix_ones = np.array([
     [0, 0, 0, 0, 0] # E
 ])"""
 
-mst_matrix = execute_simulator(weight_matrix,max_delay)
+mst_matrix = execute_simulator(weight_matrix,max_delay)/2
 
 
-print(f"MaST:\n{mst_matrix/2}")
-
-
-"""
-Idea:
-add node added to each edge. this nodes spikes to add. then add spikes on the last. can toy with thresholds between part and add to make sure the last node to be added triggers add
-
-
-now add takes self.nr_edges are threshold, and is put 1 below it
-"""
+print(f"MaST:\n{mst_matrix}")
