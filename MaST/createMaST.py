@@ -79,9 +79,7 @@ class Constructor():
 
             # Create a node to check if the graph node is not yet part of the MST, and thus should be added. If so, spike the add node.
             #v_notpart
-            #om 3 delay toe te voegen voor add node, +3 op add_to_mst->add_node, +3 op graph_node->and_gate_v_notpart_node en +3 inhibitions op add_node
             v_notpart_node = self.network.createLIF(m=0, V_init=0, V_reset=0, thr=1, read_out=False, ID=id_counter+4)
-
             self.network.createSynapse(receive_graph_node, part_of_mst_node, w=1, d=1)
             self.network.createSynapse(part_of_mst_node, v_notpart_node, w=-1, d=1)
             self.network.createSynapse(receive_graph_node, v_notpart_node, w=1, d=2)
