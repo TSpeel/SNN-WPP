@@ -51,8 +51,8 @@ class Constructor():
         #self.network.createSynapse(start_node, add_node, w=-self.nr_nodes, d=1)
         #self.network.createSynapse(start_node, add_node, w=self.nr_nodes-1, d=2)
 
-        ties_node = self.network.createLIF(m=1, V_init=self.nr_edges-1, V_reset=0, thr=self.nr_edges, read_out=False, ID=4)
-        self.network.createSynapse(ties_node, add_node, w=1, d=2)
+        ties_node = self.network.createLIF(m=1, V_init=self.nr_edges, V_reset=0, thr=self.nr_edges+1, read_out=False, ID=4)
+        self.network.createSynapse(ties_node, add_node, w=1, d=1)
         
 
         id_counter = 5
@@ -167,16 +167,16 @@ class Constructor():
 
         # Create reset node for resetting the algorithm and starting the next cycle.
         # Add delay of maximum weight to make sure all pulses have propagated
-        self.network.createSynapse(add_node, start_node, w=1, d=self.max_weight+50)
-        self.network.createSynapse(add_node, ties_node, w=-self.nr_edges, d=self.max_weight+40)
-        self.network.createSynapse(add_node, ties_node, w=self.nr_edges-1, d=self.max_weight+41)
+        self.network.createSynapse(add_node, start_node, w=1, d=testmax+50)
+        self.network.createSynapse(add_node, ties_node, w=-self.nr_edges, d=testmax+40)
+        self.network.createSynapse(add_node, ties_node, w=self.nr_edges, d=testmax+41)
 
         return self.network
 
 
 def construct_MST(spikes, delays, weight_matrix,testmax):
     cycle_starts = np.argwhere(spikes[:, 0] == True).flatten()
-    print(cycle_starts)
+    #print(cycle_starts)
     #print([np.argwhere(spikes[:, node]==True).flatten() for node in range(3, spikes.shape[1])])
     #spikes_at = [np.argwhere(spikes[:, node]==True).flatten()[0] for node in range(3, spikes.shape[1])]
     spikes_at = [
@@ -185,12 +185,12 @@ def construct_MST(spikes, delays, weight_matrix,testmax):
 ]
 
     mst_matrix = np.zeros(weight_matrix.shape)
-    print(delays)
+    #print(delays)
     for i, spike_time in enumerate(sorted(spikes_at)):
         start_cycle = cycle_starts[i]
         
         time_needed = spike_time - start_cycle - 8 - testmax
-        print(spike_time,start_cycle,time_needed)
+        #print(spike_time,start_cycle,time_needed)
         result = np.argwhere(delays==time_needed).flatten()
         mst_matrix[result[0], result[1]] = weight_matrix[result[0], result[1]]
 
@@ -212,7 +212,7 @@ def execute_simulator(weight_matrix,testmax):
     # Obtain all measurements
     spikes = sim.raster.get_measurements()
     voltages = sim.multimeter.get_measurements()
-    print(voltages[:,1])
+    #print(voltages[:,1])
 
     return construct_MST(spikes, weights, weight_matrix,testmax)
 
@@ -232,8 +232,8 @@ else:
     ])
 #Usage eg python3 constructNetwork.py -i [[0,1,5,0,9],[0,0,2,7,0],[0,0,0,3,1],[0,0,0,0,14],[0,0,0,0,0]]
 # or just python3 constructNetwork.py
-
-#weight_matrix *= 7
+print(f"Graph:\n{weight_matrix}\n")
+weight_matrix *= 2
 testmax = np.max(weight_matrix) * 3
 
 """
@@ -247,8 +247,8 @@ weight_matrix_ones = np.array([
 
 mst_matrix = execute_simulator(weight_matrix,testmax)
 
-print(f"Graph:\n{weight_matrix}\n")
-print(f"MaST:\n{mst_matrix}")
+
+print(f"MaST:\n{mst_matrix/2}")
 
 
 """
