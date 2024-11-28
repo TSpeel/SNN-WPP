@@ -192,8 +192,8 @@ else:
         [0, 0, 0, 0, 14], # D
         [0, 0, 0, 0, 0] # E
     ])
-#Usage eg python3 constructNetwork.py -i [[0,1,5,0,9],[0,0,2,7,0],[0,0,0,3,1],[0,0,0,0,14],[0,0,0,0,0]]
-# or just python3 constructNetwork.py
+#Usage eg python3 createMaST.py -i [[0,1,5,0,9],[0,0,2,7,0],[0,0,0,3,1],[0,0,0,0,14],[0,0,0,0,0]]
+# or just python3 createMaST.py
 print(f"Graph:\n{weight_matrix}\n")
 weight_matrix *= 2
 max_delay = np.max(weight_matrix) * 2
