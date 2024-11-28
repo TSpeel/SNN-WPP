@@ -37,9 +37,25 @@ class Constructor():
         self.network.createSynapse(add_node, add_node, w=-self.nr_edges, d=1) # Inhibit further spikes to the add node for 3 time-steps while the add node inhibits all the graph nodes
         self.network.createSynapse(add_node, add_node, w=-self.nr_edges, d=2)
         self.network.createSynapse(add_node, add_node, w=-self.nr_edges, d=3)
-        self.network.createSynapse(add_node, add_node, w=self.nr_edges, d=4)
+        self.network.createSynapse(add_node, add_node, w=-self.nr_edges, d=4)
+        self.network.createSynapse(add_node, add_node, w=-self.nr_edges, d=5)
+        self.network.createSynapse(add_node, add_node, w=-self.nr_edges, d=6)
+        self.network.createSynapse(add_node, add_node, w=-self.nr_edges, d=7)
+        self.network.createSynapse(add_node, add_node, w=-self.nr_edges, d=8)
+        self.network.createSynapse(add_node, add_node, w=-self.nr_edges, d=9)
+        self.network.createSynapse(add_node, add_node, w=-self.nr_edges, d=10)
+        self.network.createSynapse(add_node, add_node, w=-self.nr_edges, d=11)
+        self.network.createSynapse(add_node, add_node, w=-self.nr_edges, d=12)
+        self.network.createSynapse(add_node, add_node, w=-self.nr_edges, d=13)
+        self.network.createSynapse(add_node, add_node, w=-self.nr_edges, d=14)
+        self.network.createSynapse(add_node, add_node, w=-self.nr_edges, d=15)
+        self.network.createSynapse(add_node, add_node, w=-self.nr_edges, d=16)
+        self.network.createSynapse(add_node, add_node, w=-self.nr_edges, d=17)
+        self.network.createSynapse(add_node, add_node, w=-self.nr_edges, d=18)
+        self.network.createSynapse(add_node, add_node, w=self.nr_edges, d=19)
         #self.network.createSynapse(start_node, add_node, w=1, d=8)
         #maybe nog iets nodig om +1 te doen per iteratie
+        #self.network.createSynapse(start_node, add_node, w=1, d=15)
 
         #add_node = self.network.createLIF(m=1, V_init=0, V_reset=0, V_min=0, thr=self.nr_nodes, read_out=False, ID=3)
         #self.network.createSynapse(start_node, add_node, w=-self.nr_nodes, d=1)
@@ -73,18 +89,29 @@ class Constructor():
             self.network.createSynapse(and_gate_part_of_mst_node, graph_node, w=1, d=1)
 
             # Create a node to check if the graph node is not yet part of the MST, and thus should be added. If so, spike the add node.
+            #v_notpart
+            #om 3 delay toe te voegen voor add node, +3 op add_to_mst->add_node, +3 op graph_node->and_gate_add_to_mst_node en +3 inhibitions op add_node
             add_to_mst_node = self.network.createLIF(m=0, V_init=0, V_reset=0, thr=1, read_out=False, ID=id_counter+4)
             self.network.createSynapse(graph_node, part_of_mst_node, w=1, d=1)
             self.network.createSynapse(part_of_mst_node, add_to_mst_node, w=-1, d=1)
             self.network.createSynapse(graph_node, add_to_mst_node, w=1, d=2)
-            self.network.createSynapse(add_to_mst_node, add_node, w=1, d=1)
+            self.network.createSynapse(add_to_mst_node, add_node, w=1, d=16)
             self.network.createSynapse(add_to_mst_node, part_of_mst_node, w=-1, d=1)
+            #ties node v2
+            #ties_node = self.network.createLIF(m=0, V_init=0, V_reset=0, thr=1, read_out=False, ID=id_counter+23)
+            #self.network.createSynapse(add_to_mst_node, add_node, w=-1, d=1)
+
+            #ties and node
+            #ties_and_node = self.network.createLIF(m=0, V_init=0, V_reset=0, thr=2, read_out=False, ID=id_counter+24)
+            #self.network.createSynapse(ties_node, ties_and_node, w=1, d=1)
+            #self.network.createSynapse(start_node, ties_and_node, w=1, d=6)
+            #self.network.createSynapse(ties_and_node, add_node, w=-1, d=1)
 
             # Create an AND-gate to check if the graph node caused the add node to spike. If so, spike part of MST node to add it to the MST.
             and_gate_add_to_mst_node = self.network.createLIF(m=0, V_init=0, V_reset=0, thr=2, read_out=False, ID=id_counter+3)
             self.target_nodes.append(and_gate_add_to_mst_node)
             self.network.createSynapse(add_node, and_gate_add_to_mst_node, w=1, d=1)
-            self.network.createSynapse(graph_node, and_gate_add_to_mst_node, w=1, d=4)
+            self.network.createSynapse(graph_node, and_gate_add_to_mst_node, w=1, d=19)
             self.network.createSynapse(and_gate_add_to_mst_node, part_of_mst_node, w=self.nr_nodes + 1, d=1)
 
             id_counter += 5
@@ -113,15 +140,15 @@ class Constructor():
 
                     #prob op de verkeerde plek, want moet alleen -1 doen als de edge ook echt zou spiken, aka als target niet deel is van mst
                     #ties node v2
-                    ties_node = self.network.createLIF(m=0, V_init=0, V_reset=0, thr=1, read_out=False, ID=counter+23)
-                    self.network.createSynapse(self.graph_nodes[i], ties_node, w=1, d=1)
-                    self.network.createSynapse(self.graph_nodes[j], ties_node, w=1, d=1)
+                    #ties_node = self.network.createLIF(m=0, V_init=0, V_reset=0, thr=1, read_out=False, ID=counter+23)
+                    #self.network.createSynapse(self.graph_nodes[i], ties_node, w=1, d=1)
+                    #self.network.createSynapse(self.graph_nodes[j], ties_node, w=1, d=1)
 
                     #ties and node
-                    ties_and_node = self.network.createLIF(m=0, V_init=0, V_reset=0, thr=2, read_out=False, ID=counter+24)
-                    self.network.createSynapse(ties_node, ties_and_node, w=1, d=1)
-                    self.network.createSynapse(start_node, ties_and_node, w=1, d=6)
-                    self.network.createSynapse(ties_and_node, add_node, w=-1, d=1)
+                    #ties_and_node = self.network.createLIF(m=0, V_init=0, V_reset=0, thr=2, read_out=False, ID=counter+24)
+                    #self.network.createSynapse(ties_node, ties_and_node, w=1, d=1)
+                    #self.network.createSynapse(start_node, ties_and_node, w=1, d=6)
+                    #self.network.createSynapse(ties_and_node, add_node, w=-1, d=1)
                     
 
 
@@ -154,7 +181,7 @@ def construct_MST(spikes, delays, weight_matrix):
     for i, spike_time in enumerate(sorted(spikes_at)):
         start_cycle = cycle_starts[i]
         
-        time_needed = spike_time - start_cycle - 8
+        time_needed = spike_time - start_cycle - 8 - 15
         print(spike_time,start_cycle,time_needed)
         result = np.argwhere(delays==time_needed).flatten()
         #mst_matrix[result[0], result[1]] = weight_matrix[result[0], result[1]]
