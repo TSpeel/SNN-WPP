@@ -18,6 +18,7 @@ class Constructor():
         self.nr_edges = np.count_nonzero(weight_matrix)
         self.target_nodes = []
         self.graph_nodes = []
+        self.receive_graph_nodes = []
         self.max_weight = 0
 
     def construct(self):
@@ -60,9 +61,12 @@ class Constructor():
         #add_node = self.network.createLIF(m=1, V_init=0, V_reset=0, V_min=0, thr=self.nr_nodes, read_out=False, ID=3)
         #self.network.createSynapse(start_node, add_node, w=-self.nr_nodes, d=1)
         #self.network.createSynapse(start_node, add_node, w=self.nr_nodes-1, d=2)
+
+        ties_node = self.network.createLIF(m=1, V_init=self.nr_edges-1, V_reset=0, thr=self.nr_edges, read_out=False, ID=4)
+        self.network.createSynapse(ties_node, add_node, w=1, d=1)
         
 
-        id_counter = 4
+        id_counter = 5
 
         for i in range(self.nr_nodes):
 
@@ -70,12 +74,18 @@ class Constructor():
             graph_node = self.network.createLIF(m=1, V_init=0, V_reset=0, V_min=0, thr=self.nr_nodes, read_out=False, ID=id_counter)
             self.graph_nodes.append(graph_node)
 
+            receive_graph_node = self.network.createLIF(m=1, V_init=0, V_reset=0, V_min=0, thr=self.nr_nodes, read_out=False, ID=id_counter)
+            self.receive_graph_nodes.append(receive_graph_node)
+
             # At the start of a cycle, reset the graph nodes.
             self.network.createSynapse(start_node, graph_node, w=-self.nr_nodes, d=2)
             self.network.createSynapse(start_node, graph_node, w=self.nr_nodes-1, d=3)
+            self.network.createSynapse(start_node, receive_graph_node, w=-self.nr_nodes, d=2)
+            self.network.createSynapse(start_node, receive_graph_node, w=self.nr_nodes-1, d=3)
 
             # If a node is added to the MST, inhibit all other graph nodes from spiking.
             self.network.createSynapse(add_node, graph_node, w=-self.nr_nodes, d=1)
+            self.network.createSynapse(add_node, receive_graph_node, w=-self.nr_nodes, d=1)
 
             # Create a node for keeping track if the node is already part of the MST.
             part_of_mst_node = self.network.createLIF(m=1, V_init=(0 if i else self.nr_nodes), V_reset=0, thr=self.nr_nodes + 1, read_out=True, ID=id_counter+1)
@@ -90,16 +100,27 @@ class Constructor():
 
             # Create a node to check if the graph node is not yet part of the MST, and thus should be added. If so, spike the add node.
             #v_notpart
-            #om 3 delay toe te voegen voor add node, +3 op add_to_mst->add_node, +3 op graph_node->and_gate_add_to_mst_node en +3 inhibitions op add_node
-            add_to_mst_node = self.network.createLIF(m=0, V_init=0, V_reset=0, thr=1, read_out=False, ID=id_counter+4)
-            self.network.createSynapse(graph_node, part_of_mst_node, w=1, d=1)
-            self.network.createSynapse(part_of_mst_node, add_to_mst_node, w=-1, d=1)
-            self.network.createSynapse(graph_node, add_to_mst_node, w=1, d=2)
-            self.network.createSynapse(add_to_mst_node, add_node, w=1, d=16)
-            self.network.createSynapse(add_to_mst_node, part_of_mst_node, w=-1, d=1)
+            #om 3 delay toe te voegen voor add node, +3 op add_to_mst->add_node, +3 op graph_node->and_gate_v_notpart_node en +3 inhibitions op add_node
+            v_notpart_node = self.network.createLIF(m=0, V_init=0, V_reset=0, thr=1, read_out=False, ID=id_counter+4)
+            #self.network.createSynapse(graph_node, part_of_mst_node, w=1, d=1)
+            #self.network.createSynapse(part_of_mst_node, v_notpart_node, w=-1, d=1)
+            #self.network.createSynapse(graph_node, v_notpart_node, w=1, d=2)
+            #self.network.createSynapse(v_notpart_node, add_node, w=1, d=16)
+            #self.network.createSynapse(v_notpart_node, part_of_mst_node, w=-1, d=1)
+
+            self.network.createSynapse(receive_graph_node, part_of_mst_node, w=1, d=1)
+            self.network.createSynapse(part_of_mst_node, v_notpart_node, w=-1, d=1)
+            self.network.createSynapse(receive_graph_node, v_notpart_node, w=1, d=2)
+            self.network.createSynapse(v_notpart_node, add_node, w=1, d=16)
+            self.network.createSynapse(v_notpart_node, part_of_mst_node, w=-1, d=1)
+
+
             #ties node v2
             #ties_node = self.network.createLIF(m=0, V_init=0, V_reset=0, thr=1, read_out=False, ID=id_counter+23)
-            #self.network.createSynapse(add_to_mst_node, add_node, w=-1, d=1)
+            self.network.createSynapse(v_notpart_node, add_node, w=-1, d=1)
+            self.network.createSynapse(v_notpart_node, ties_node, w=1, d=1)
+
+            
 
             #ties and node
             #ties_and_node = self.network.createLIF(m=0, V_init=0, V_reset=0, thr=2, read_out=False, ID=id_counter+24)
@@ -108,11 +129,11 @@ class Constructor():
             #self.network.createSynapse(ties_and_node, add_node, w=-1, d=1)
 
             # Create an AND-gate to check if the graph node caused the add node to spike. If so, spike part of MST node to add it to the MST.
-            and_gate_add_to_mst_node = self.network.createLIF(m=0, V_init=0, V_reset=0, thr=2, read_out=False, ID=id_counter+3)
-            self.target_nodes.append(and_gate_add_to_mst_node)
-            self.network.createSynapse(add_node, and_gate_add_to_mst_node, w=1, d=1)
-            self.network.createSynapse(graph_node, and_gate_add_to_mst_node, w=1, d=19)
-            self.network.createSynapse(and_gate_add_to_mst_node, part_of_mst_node, w=self.nr_nodes + 1, d=1)
+            and_gate_v_notpart_node = self.network.createLIF(m=0, V_init=0, V_reset=0, thr=2, read_out=False, ID=id_counter+3)
+            self.target_nodes.append(and_gate_v_notpart_node)
+            self.network.createSynapse(add_node, and_gate_v_notpart_node, w=1, d=1)
+            self.network.createSynapse(receive_graph_node, and_gate_v_notpart_node, w=1, d=19)
+            self.network.createSynapse(and_gate_v_notpart_node, part_of_mst_node, w=self.nr_nodes + 1, d=1)
 
             id_counter += 5
 
@@ -131,8 +152,8 @@ class Constructor():
                     weight_count = np.count_nonzero(weight_history == w)
                     weight = int(max_duplicate_weights * w + weight_count)
                     weight_history.append(w)
-                    self.network.createSynapse(self.graph_nodes[i], self.graph_nodes[j], w=1, d=weight)
-                    self.network.createSynapse(self.graph_nodes[j], self.graph_nodes[i], w=1, d=weight)
+                    self.network.createSynapse(self.graph_nodes[i], self.receive_graph_nodes[j], w=1, d=weight)
+                    self.network.createSynapse(self.graph_nodes[j], self.receive_graph_nodes[i], w=1, d=weight)
                     #self.network.createSynapse(self.graph_nodes[i], add_node, w=-1, d=1)
                     #self.network.createSynapse(self.graph_nodes[j], add_node, w=-1, d=1)
                     self.weight_matrix_transformed[i,j] = weight
@@ -161,7 +182,9 @@ class Constructor():
 
         # Create reset node for resetting the algorithm and starting the next cycle.
         # Add delay of maximum weight to make sure all pulses have propagated
-        self.network.createSynapse(add_node, start_node, w=1, d=self.max_weight+20)
+        self.network.createSynapse(add_node, start_node, w=1, d=self.max_weight+50)
+        self.network.createSynapse(add_node, ties_node, w=-self.nr_edges, d=self.max_weight+50)
+        self.network.createSynapse(add_node, ties_node, w=self.nr_edges-1, d=self.max_weight+50)
 
         return self.network
 
@@ -200,7 +223,7 @@ def execute_simulator(weight_matrix):
     sim.raster.addTarget(constructor.target_nodes)
     sim.multimeter.addTarget(constructor.target_nodes)
 
-    sim.run(steps=(constructor.nr_nodes-1) * (constructor.max_weight*2 + 8) + 1, plotting=False)
+    sim.run(steps=(constructor.nr_nodes-1) * (constructor.max_weight*2 + 8) + 1 + 500, plotting=False)
     # Obtain all measurements
     spikes = sim.raster.get_measurements()
     voltages = sim.multimeter.get_measurements()
