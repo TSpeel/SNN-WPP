@@ -37,9 +37,10 @@ class Constructor():
         add_node = self.network.createLIF(m=1, V_init=self.nr_edges, V_reset=self.nr_edges, thr=self.nr_edges+1, read_out=True, ID=3)
         self.target_nodes.append(add_node)
         #Release your inhibition
-        for i in range(1,max_delay):
-            self.network.createSynapse(add_node, add_node, w=-self.nr_edges, d=i)
-        self.network.createSynapse(add_node, add_node, w=self.nr_edges, d=max_delay+4)
+        #for i in range(1,max_delay):
+            #self.network.createSynapse(add_node, add_node, w=-self.nr_edges, d=i)
+        self.network.createSynapse(add_node, add_node, w=-self.nr_edges, d=1)
+        self.network.createSynapse(add_node, add_node, w=self.nr_edges, d=2)
 
         ties_node = self.network.createLIF(m=1, V_init=self.nr_edges, V_reset=0, thr=self.nr_edges+1, read_out=False, ID=4)
         self.network.createSynapse(ties_node, add_node, w=1, d=1)
@@ -129,7 +130,7 @@ class Constructor():
 
         # Create reset node for resetting the algorithm and starting the next cycle.
         # Add delay of maximum weight to make sure all pulses have propagated
-        self.network.createSynapse(add_node, start_node, w=1, d=max_delay)
+        self.network.createSynapse(add_node, start_node, w=1, d=3)
         self.network.createSynapse(add_node, ties_node, w=-self.nr_edges, d=1)
         self.network.createSynapse(add_node, ties_node, w=self.nr_edges, d=2)
 
