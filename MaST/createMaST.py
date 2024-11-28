@@ -129,9 +129,9 @@ class Constructor():
 
         # Create reset node for resetting the algorithm and starting the next cycle.
         # Add delay of maximum weight to make sure all pulses have propagated
-        self.network.createSynapse(add_node, start_node, w=1, d=testmax+50)
-        self.network.createSynapse(add_node, ties_node, w=-self.nr_edges, d=testmax+40)
-        self.network.createSynapse(add_node, ties_node, w=self.nr_edges, d=testmax+41)
+        self.network.createSynapse(add_node, start_node, w=1, d=testmax+2)
+        self.network.createSynapse(add_node, ties_node, w=-self.nr_edges, d=1)
+        self.network.createSynapse(add_node, ties_node, w=self.nr_edges, d=2)
 
         return self.network
 
@@ -170,7 +170,7 @@ def execute_simulator(weight_matrix,testmax):
     sim.raster.addTarget(constructor.target_nodes)
     sim.multimeter.addTarget(constructor.target_nodes)
 
-    sim.run(steps=(constructor.nr_nodes-1) * (constructor.max_weight*2 + 8) + 1 + 10*testmax, plotting=False)
+    sim.run(steps=(constructor.nr_nodes-1) * (constructor.max_weight*2 + 8) + 1 + 2*constructor.nr_nodes*testmax, plotting=False)
     # Obtain all measurements
     spikes = sim.raster.get_measurements()
     voltages = sim.multimeter.get_measurements()

@@ -130,6 +130,8 @@ MaST:
  [0. 0. 0.]]
 '''
 
+        self.assertEqual(result.stdout.strip(), expected_output.strip())
+
 
 class MaSTTest5(unittest.TestCase):
 #Test if invertMiST is equal to createMaST
