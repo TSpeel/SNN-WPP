@@ -43,8 +43,8 @@ class Constructor():
         self.network.createSynapse(add_node, add_node, w=self.nr_edges, d=2)
 
         #Node responsible for adding +1 to count of relevant edges in cycle. Has to ping after first -1 ping once per cycle.
-        ties_node = self.network.createLIF(m=1, V_init=self.nr_edges, V_reset=0, thr=self.nr_edges+1, read_out=False, ID=4)
-        self.network.createSynapse(ties_node, add_node, w=1, d=1)
+        adjust_count_node = self.network.createLIF(m=1, V_init=self.nr_edges, V_reset=0, thr=self.nr_edges+1, read_out=False, ID=4)
+        self.network.createSynapse(adjust_count_node, add_node, w=1, d=1)
         
 
         id_counter = 5
@@ -88,7 +88,7 @@ class Constructor():
 
             # Counting number of edges from MST to non-MST nodes
             self.network.createSynapse(v_notpart_node, add_node, w=-1, d=1)
-            self.network.createSynapse(v_notpart_node, ties_node, w=1, d=1)
+            self.network.createSynapse(v_notpart_node, adjust_count_node, w=1, d=1)
 
 
             # Create an AND-gate to check if the graph node caused the add node to spike. If so, spike part of MST node to add it to the MST.
@@ -130,8 +130,8 @@ class Constructor():
 
         # Create reset node for resetting the algorithm and starting the next cycle.
         self.network.createSynapse(add_node, start_node, w=1, d=3)
-        self.network.createSynapse(add_node, ties_node, w=-self.nr_edges, d=1)
-        self.network.createSynapse(add_node, ties_node, w=self.nr_edges, d=2)
+        self.network.createSynapse(add_node, adjust_count_node, w=-self.nr_edges, d=1)
+        self.network.createSynapse(add_node, adjust_count_node, w=self.nr_edges, d=2)
 
         return self.network
 
