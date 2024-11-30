@@ -32,14 +32,15 @@ class Constructor():
         self.network.createSynapse(start_train, start_node, w=1, d=1)
 
         # Create add node for adding new nodes to the MST and suppressing the rest of the graph.
-        # add_node = self.network.createLIF(m=0, V_init=0, V_reset=0, thr=1, read_out=False, ID=3)
-        # self.network.createSynapse(add_node, add_node, w=-self.nr_nodes, d=1) # Inhibit further spikes to the add node for 3 time-steps while the add node inhibits all the graph nodes
-        # self.network.createSynapse(add_node, add_node, w=-self.nr_nodes, d=2)
-        # self.network.createSynapse(add_node, add_node, w=-self.nr_nodes, d=3)
+        add_node = self.network.createLIF(m=0, V_init=0, V_reset=0, thr=1, read_out=False, ID=3)
+        self.network.createSynapse(add_node, add_node, w=-self.nr_nodes, d=1) # Inhibit further spikes to the add node for 3 time-steps while the add node inhibits all the graph nodes
+        self.network.createSynapse(add_node, add_node, w=-self.nr_nodes, d=2)
+        self.network.createSynapse(add_node, add_node, w=-self.nr_nodes, d=3)
 
-        add_node = self.network.createLIF(m=1, V_init=0, V_reset=0, V_min=0, thr=self.nr_nodes, read_out=False, ID=3)
-        self.network.createSynapse(start_node, add_node, w=-self.nr_nodes, d=1)
-        self.network.createSynapse(start_node, add_node, w=self.nr_nodes-1, d=2)
+        # Below code was in use in the linked implementation, but above code better matches the SNN graph in the paper
+        #add_node = self.network.createLIF(m=1, V_init=0, V_reset=0, V_min=0, thr=self.nr_nodes, read_out=False, ID=3)
+        #self.network.createSynapse(start_node, add_node, w=-self.nr_nodes, d=1)
+        #self.network.createSynapse(start_node, add_node, w=self.nr_nodes-1, d=2)
         
 
         id_counter = 4
