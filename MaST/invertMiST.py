@@ -172,19 +172,9 @@ else:
         [0, 0, 0, 0, 14], # D
         [0, 0, 0, 0, 0] # E
     ])
-#Usage eg python3 constructNetwork.py -i [[0,1,5,0,9],[0,0,2,7,0],[0,0,0,3,1],[0,0,0,0,14],[0,0,0,0,0]]
-# or just python3 constructNetwork.py
+#Usage eg python3 invertMiST.py -i [[0,1,5,0,9],[0,0,2,7,0],[0,0,0,3,1],[0,0,0,0,14],[0,0,0,0,0]]
+# or just python3 invertMiST.py
 new_weight_matrix, max = matrix_transformation(weight_matrix)
-
-"""
-weight_matrix_ones = np.array([
-    [0, 1, 1, 0, 1], # A
-    [0, 0, 1, 1, 1], # B
-    [0, 0, 0, 1, 1], # C
-    [0, 0, 0, 0, 1], # D
-    [0, 0, 0, 0, 0] # E
-])"""
-
 mst_matrix = execute_simulator(new_weight_matrix)
 
 print(f"Graph:\n{weight_matrix}\n")
