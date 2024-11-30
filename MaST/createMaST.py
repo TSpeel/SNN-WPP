@@ -33,12 +33,10 @@ class Constructor():
         self.network.createSynapse(start_train, start_node, w=1, d=1)
 
 
-        # Create add node for adding new nodes to the MST and suppressing the rest of the graph.
+        # Create add node for adding new nodes to the MST. 
+        # Inhibition is no longer needed as last spike in the network is the one triggering the addition of the edge.
         add_node = self.network.createLIF(m=1, V_init=self.nr_edges, V_reset=self.nr_edges, thr=self.nr_edges+1, read_out=True, ID=3)
         self.target_nodes.append(add_node)
-        #Release your inhibition
-        #for i in range(1,max_delay):
-            #self.network.createSynapse(add_node, add_node, w=-self.nr_edges, d=i)
         self.network.createSynapse(add_node, add_node, w=-self.nr_edges, d=1)
         self.network.createSynapse(add_node, add_node, w=self.nr_edges, d=2)
 
@@ -194,17 +192,6 @@ else:
 print(f"Graph:\n{weight_matrix}\n")
 weight_matrix *= 2
 max_delay = np.max(weight_matrix) * 2
-
-"""
-weight_matrix_ones = np.array([
-    [0, 1, 1, 0, 1], # A
-    [0, 0, 1, 1, 1], # B
-    [0, 0, 0, 1, 1], # C
-    [0, 0, 0, 0, 1], # D
-    [0, 0, 0, 0, 0] # E
-])"""
-
 mst_matrix = execute_simulator(weight_matrix,max_delay)/2
-
 
 print(f"MaST:\n{mst_matrix}")
