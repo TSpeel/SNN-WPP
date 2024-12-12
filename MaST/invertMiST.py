@@ -152,12 +152,8 @@ def execute_simulator(weight_matrix):
 
     return construct_MST(spikes, weights, weight_matrix)
 
-def matrix_transformation(matrix):
-    max_value = matrix.max()
-    return np.where(matrix == 0, 0, max_value + 1 - matrix), max_value
-
-def undo_transformation(matrix,max):
-    return np.where(matrix == 0, 0, -(matrix -1 - max))
+def matrix_transformation(matrix,max_value):
+    return np.where(matrix == 0, 0, max_value + 1 - matrix)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', type=str)
@@ -174,8 +170,9 @@ else:
     ])
 #Usage eg python3 invertMiST.py -i [[0,1,5,0,9],[0,0,2,7,0],[0,0,0,3,1],[0,0,0,0,14],[0,0,0,0,0]]
 # or just python3 invertMiST.py
-new_weight_matrix, max = matrix_transformation(weight_matrix)
+max_value = weight_matrix.max()
+new_weight_matrix = matrix_transformation(weight_matrix,max_value)
 mst_matrix = execute_simulator(new_weight_matrix)
 
 print(f"Graph:\n{weight_matrix}\n")
-print(f"MaST:\n{undo_transformation(mst_matrix,max)}")
+print(f"MaST:\n{matrix_transformation(mst_matrix,max_value)}")
